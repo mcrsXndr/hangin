@@ -25,12 +25,30 @@ document.getElementById('add-action').addEventListener('click', () => {
     const minutes = parseInt(minutesSeconds[0], 10) || 0;
     const seconds = parseInt(minutesSeconds[1], 10) || 0;
     const duration = (minutes * 60 + seconds) * 1000;
-    actionQueue.push({ type: actionType, duration });
+    const action = { type: actionType, duration };
+    actionQueue.push(action);
 
     const queueDisplay = document.getElementById('queue');
     const newQueueItem = document.createElement('div');
     newQueueItem.classList.add('queue-item');
     newQueueItem.textContent = `${actionType.toUpperCase()}: ${minutes.toString()}m ${seconds.toString().padStart(2, '0')}s`;
+
+    // Create a remove button for the action
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '❌';
+    removeBtn.classList.add('remove-action');
+    removeBtn.onclick = function() {
+        // Remove this action from the queue
+        const index = actionQueue.indexOf(action);
+        if (index > -1) {
+            actionQueue.splice(index, 1);
+        }
+        // Remove the display element
+        queueDisplay.removeChild(newQueueItem);
+    };
+
+    // Append the remove button to the queue item
+    newQueueItem.appendChild(removeBtn);
     queueDisplay.appendChild(newQueueItem);
 });
 
@@ -80,9 +98,9 @@ function processNextAction() {
     const queueItems = document.querySelectorAll('.queue-item');
     queueItems.forEach((item, index) => {
         if (index === currentActionIndex - 1) {
-            item.innerHTML = `➡️ ${item.textContent}`; // Add an arrow to indicate the current action
+            item.style.fontWeight = 'bold'; // Make the current action bold
         } else {
-            item.textContent = item.textContent.replace('➡️ ', ''); // Remove arrow from other actions
+            item.style.fontWeight = 'normal'; // Reset other actions to normal weight
         }
     });
 
@@ -129,13 +147,13 @@ function stopTimer() {
 startBtn.addEventListener('click', () => {
     if (startBtn.textContent === 'PAUSE') {
         clearInterval(timer);
+        timer = null; // Ensure timer is cleared and set to null
         startBtn.textContent = 'START';
         isPaused = true;
         stopBtn.style.display = 'inline'; // Show stop button only when paused
-    } else if (startBtn.textContent !== 'PAUS') { // Prevent action if button says "PAUS"
+    } else {
         startTimer();
     }
 });
 stopBtn.addEventListener('click', stopTimer);
 updateTimerDisplay();
-

@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/vite.svg">
@@ -8,11 +9,13 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="timer-container">
         <svg class="circle-timer" viewBox="0 0 200 200">
             <circle cx="100" cy="100" r="86" fill="transparent" stroke="#ccc" stroke-width="15"></circle>
-            <circle cx="100" cy="100" r="86" fill="transparent" stroke="#0963DA" stroke-width="15" stroke-dasharray="565" stroke-dashoffset="565" id="timer-path" transform="rotate(90 100 100)"></circle>
+            <circle cx="100" cy="100" r="86" fill="transparent" stroke="#0963DA" stroke-width="15"
+                stroke-dasharray="565" stroke-dashoffset="565" id="timer-path" transform="rotate(90 100 100)"></circle>
             <text id="time" x="100" y="105" text-anchor="middle" dominant-baseline="middle">00:00:00</text>
         </svg>
         <button id="start-btn">START</button>
@@ -29,14 +32,15 @@
         <div class="action-time">
             <label for="action-time">Time (MM:SS):</label>
             <input type="text" id="action-time" pattern="\d{2}:\d{2}" value="00:10">
+            <button id="add-action">✅</button>
         </div>
-        <button id="add-action">+</button>
         <div id="queue"></div>
         <div class="repeat-queue">
             <input type="checkbox" id="repeat-queue">
-            <label for="repeat-queue">Repeat (x)</label>
+            <label for="repeat-queue">Repeat</label>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>

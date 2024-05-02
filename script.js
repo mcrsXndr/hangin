@@ -195,7 +195,7 @@ startBtn.addEventListener('click', () => {
         timer = null;
         startBtn.textContent = 'RESUME';
         isPaused = true;
-    }
+    } 
 });
 
 stopBtn.addEventListener('click', () => {

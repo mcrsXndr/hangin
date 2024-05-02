@@ -16,14 +16,16 @@
             <circle cx="100" cy="100" r="86" fill="transparent" stroke="#ccc" stroke-width="15"></circle>
             <circle cx="100" cy="100" r="86" fill="transparent" stroke="#0963DA" stroke-width="15"
                 stroke-dasharray="565" stroke-dashoffset="565" id="timer-path" transform="rotate(90 100 100)"></circle>
-            <text id="time" x="100" y="105" text-anchor="middle" dominant-baseline="middle">00:00</text>
+            <text id="time" x="100" y="105" text-anchor="middle" dominant-baseline="middle">00:00:00</text>
         </svg>
         <button id="start-btn">START</button>
     </div>
-    <hr style="width: 80%; height: 1px; background: linear-gradient(to right, white, #ccc, white); border: none;">
+    <hr style="width: 80%; height: 1px; background: linear-gradient(to right, #EDF2F9, #d3d3d3, #EDF2F9); border: none;">
+    <label id="sec-label" for="sec-input">seconds</label>
     <div class="action-queue">
-        <label for="sec-label">Seconds</label>
-        <input id="sec-input" type="number" min="0" max="9999" value="10">
+        <button class="input-adjust" id="decrease-sec">-</button>
+        <input id="sec-input" type="number" min="0" max="9999" value="5">
+        <button class="input-adjust" id="increase-sec">+</button>
         <div id="action-buttons">
             <button id="add-hang" class="add-action">HANG</button>
             <button id="add-rest" class="add-action">REST</button>

@@ -11,9 +11,9 @@ stopBtn.style.display = 'none'; // Initially hidden, will only show when stopped
 let timer = null;
 let isPaused = false;
 
-let actionQueue = []; // Initialize the queue
-let currentActionIndex = 0; // Track the current action index
-let hasTimerStarted = false; // Track if the timer has started at least once
+let actionQueue = []; 
+let currentActionIndex = 0;
+let hasTimerStarted = false;
 
 const addActionButtons = document.querySelectorAll('.add-action');
 addActionButtons.forEach(button => {
@@ -43,10 +43,11 @@ increaseSecBtn.addEventListener('click', () => {
 function addAction(actionType) {
     const seconds = parseInt(secInput.value, 10) || 1;
     const duration = seconds * 1000;
-    const action = { type: actionType, duration, completed: false };
+    const action = { type: actionType, duration, originalDuration: duration, completed: false };
     actionQueue.push(action);
     renderQueue();
 }
+
 function renderQueue() {
     const queueDisplay = document.getElementById('queue');
     queueDisplay.innerHTML = ''; // Clear existing items
@@ -61,7 +62,10 @@ function renderQueue() {
 
         if (hasTimerStarted && index === currentActionIndex) {
             queueItem.classList.add('active');
-        } else if (action.completed) {
+        } else {
+            queueItem.classList.remove('active');
+        }
+        if (action.completed) {
             queueItem.classList.add('complete');
         }
 
@@ -86,6 +90,7 @@ function renderQueue() {
         queueDisplay.appendChild(queueItem);
     });
 }
+
 function handleDragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
 }
@@ -108,7 +113,7 @@ function handleDrop(e) {
 
 function updateTimerDisplay() {
     let currentAction = actionQueue[currentActionIndex];
-    if (currentAction) {
+    if (currentAction && typeof currentAction.start === 'number') {
         const elapsed = totalMilliseconds - currentAction.start;
         const remaining = currentAction.duration - elapsed;
         const minutes = Math.floor(remaining / 60000);
@@ -121,96 +126,128 @@ function updateTimerDisplay() {
         timerPath.style.strokeDashoffset = dashOffset;
         timerPath.style.stroke = currentAction.type === 'rest' ? 'green' : '#0963DA'; // Change color based on action type
     } else {
-        timerPath.style.strokeDashoffset = 565; // Reset to full circle
-        timerPath.style.stroke = 'transparent'; // Reset stroke when no timer is active
+        timerPath.style.strokeDashoffset = 565; // 
+        timerPath.style.stroke = 'transparent';
+        timeDisplay.textContent = '00:00:00';
+        totalMilliseconds = 0;
+        isPaused = false;
+        hasTimerStarted = false;
+        actionQueue.forEach(action => {
+            action.completed = true; // Mark all actions as complete when queue runs out
+            action.start = undefined;
+        });
+        currentActionIndex = 0; // Reset the index of the current action
+        renderQueue(); // Re-render the queue display
+        startBtn.textContent = 'START'; // Reset the start button text
+        stopBtn.style.display = 'none'; // Hide the stop button
     }
 }
 
-startBtn.addEventListener('click', () => {
-    if (!timer && actionQueue.length > 0) {
-        hasTimerStarted = true; // Set hasTimerStarted to true when the timer starts
-        renderQueue(); // Refresh the queue to highlight the first item as active
-        if (!isPaused) {
-            startBtn.textContent = 'PAUSE';
-            const currentAction = actionQueue[currentActionIndex];
-            if (!currentAction.start) {
-                currentAction.start = totalMilliseconds;
-            }
-            timer = setInterval(() => {
-                totalMilliseconds += 10;
-                updateTimerDisplay();
-                if (totalMilliseconds - currentAction.start >= currentAction.duration) {
-                    clearInterval(timer);
-                    timer = null;
-                    currentAction.completed = true;
-                    currentActionIndex++;
-                    if (currentActionIndex < actionQueue.length) {
-                        startBtn.click(); // Automatically start the next timer
-                    } else {
-                        if (document.getElementById('repeat-queue').checked) {
-                            currentActionIndex = 0; // Reset to start of the queue
-                            actionQueue.forEach(action => {
-                                action.completed = false;
-                                action.start = undefined; // Reset start time for each action
-                            }); // Clear 'complete' classes and reset start times
-                            startBtn.click(); // Restart the queue
-                        } else {
-                            startBtn.textContent = 'START';
-                            stopBtn.style.display = 'none';
-                            timerPath.style.strokeDashoffset = 565; // Reset to full circle
-                            hasTimerStarted = false; // Allow timer to be started again
-                            currentActionIndex = 0; // Reset to the first item in the queue
-                            renderQueue(); // Refresh the queue display
-                        }
-                    }
-                    renderQueue();
-                }
-            }, 10);
-            stopBtn.style.display = 'block';
-        } else {
-            isPaused = false;
-            startBtn.textContent = 'PAUSE';
-            startBtn.classList.remove('paused'); // Remove the paused class when resumed
-            timer = setInterval(() => {
-                totalMilliseconds += 10;
-                updateTimerDisplay();
-                const currentAction = actionQueue[currentActionIndex];
-                if (totalMilliseconds - currentAction.start >= currentAction.duration) {
-                    clearInterval(timer);
-                    timer = null;
-                    currentAction.completed = true;
-                    currentActionIndex++;
-                    if (currentActionIndex < actionQueue.length) {
-                        startBtn.click(); // Automatically start the next timer
-                    } else {
-                        if (document.getElementById('repeat-queue').checked) {
-                            currentActionIndex = 0; // Reset to start of the queue
-                            actionQueue.forEach(action => {
-                                action.completed = false;
-                                action.start = undefined; // Reset start time for each action
-                            }); // Clear 'complete' classes and reset start times
-                            startBtn.click(); // Restart the queue
-                        } else {
-                            startBtn.textContent = 'START';
-                            stopBtn.style.display = 'none';
-                            timerPath.style.strokeDashoffset = 565; // Reset to full circle
-                            hasTimerStarted = false; // Allow timer to be started again
-                            currentActionIndex = 0; // Reset to the first item in the queue
-                            renderQueue(); // Refresh the queue display
-                        }
-                    }
-                    renderQueue();
-                }
-            }, 10);
+function manageTimer(action) {
+    if (timer) {
+        clearInterval(timer);
+    }
+    timer = setInterval(() => {
+        totalMilliseconds += 10;
+        updateTimerDisplay();
+        if (totalMilliseconds - action.start >= action.duration) {
+            completeAction();
         }
-    } else if (timer) {
+    }, 10);
+}
+
+function completeAction() {
+    const action = actionQueue[currentActionIndex];
+    action.completed = true;
+    if (currentActionIndex < actionQueue.length - 1) {
+        currentActionIndex++;
+        startTimer();  // Start next action
+    } else {
+        const repeatQueue = document.getElementById('repeat-queue').checked;
+        if (repeatQueue) {
+            resetTimer(); // Reset the timer to start from the first action
+            startTimer(); // Start the timer again from the first action
+        } else {
+            stopTimer(); // Stop the timer if repeat is not checked
+        }
+    }
+    renderQueue(); 
+}
+
+function resetTimer() {
+    startBtn.textContent = 'START';
+    stopBtn.style.display = 'none';
+    totalMilliseconds = 0;
+    currentActionIndex = 0;
+    isPaused = false;
+    hasTimerStarted = false;
+    actionQueue.forEach(action => {
+        action.completed = false;
+        action.start = undefined;
+    });
+    renderQueue();
+    updateTimerDisplay();
+}
+
+function startTimer() {
+    if (!hasTimerStarted) {
+        actionQueue.forEach(action => {
+            action.completed = false;
+            action.start = undefined;
+        });
+    }
+    hasTimerStarted = true;
+    startBtn.textContent = 'PAUSE';
+    stopBtn.style.display = 'block';
+    const currentAction = actionQueue[currentActionIndex];
+    if (!currentAction.start) {
+        currentAction.start = totalMilliseconds;
+    }
+    manageTimer(currentAction);
+    renderQueue();
+}
+
+function pauseTimer() {
+    clearInterval(timer);
+    timer = null;
+    startBtn.textContent = 'RESUME';
+    isPaused = true;
+    const currentAction = actionQueue[currentActionIndex];
+    const elapsed = totalMilliseconds - currentAction.start;
+    currentAction.remaining = currentAction.duration - elapsed;
+    currentAction.strokeDashoffset = timerPath.style.strokeDashoffset;
+}
+
+function resumeTimer() {
+    startBtn.textContent = 'PAUSE';
+    isPaused = false;
+    const currentAction = actionQueue[currentActionIndex];
+    currentAction.start = totalMilliseconds - (currentAction.duration - currentAction.remaining);
+    manageTimer(currentAction);
+}
+
+function stopTimer() {
+    if (timer) {
         clearInterval(timer);
         timer = null;
-        startBtn.textContent = 'RESUME';
-        startBtn.classList.add('paused'); // Add the paused class when paused
-        isPaused = true;
-    } 
-});
+    }
+    startBtn.textContent = 'START';
+    startBtn.classList.remove('paused');
+    stopBtn.style.display = 'none';
+    totalMilliseconds = 0;
+    currentActionIndex = 0;
+    isPaused = false;
+    actionQueue.forEach(action => {
+        action.completed = false;
+        action.start = undefined;
+        action.elapsedTime = 0;
+    });
+    renderQueue();
+    updateTimerDisplay();
+    timerPath.style.strokeDashoffset = 565;
+    timeDisplay.textContent = '00:00:00';
+    hasTimerStarted = false;
+}
 
 function toggleRepeatQueue(event) {
     const checkbox = document.getElementById('repeat-queue');
@@ -225,29 +262,20 @@ function toggleRepeatQueue(event) {
     }
 }
 
-// Add event listeners
+
+startBtn.addEventListener('click', () => {
+    if (!timer && actionQueue.length > 0 && !isPaused) {
+        startTimer();
+    } else if (timer && !isPaused) {
+        pauseTimer();
+    } else if (!timer && isPaused) {
+        resumeTimer();
+    }
+});
+
+stopBtn.addEventListener('click', stopTimer);
+
 document.querySelector('.repeat-queue-container').addEventListener('click', toggleRepeatQueue);
 document.querySelector('.repeat-queue-container label').addEventListener('click', toggleRepeatQueue);
-
-stopBtn.addEventListener('click', () => {
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
-    startBtn.textContent = 'START';
-    stopBtn.style.display = 'none';
-    totalMilliseconds = 0;
-    currentActionIndex = 0;
-    isPaused = false; // Reset the paused state when stopped
-    actionQueue.forEach(action => {
-        action.completed = false;
-        action.start = undefined; // Reset start time for each action
-    });
-    renderQueue();
-    updateTimerDisplay();
-    timerPath.style.strokeDashoffset = 565; // Reset the visual timer to full circle
-    timeDisplay.textContent = '00:00:00'; // Reset display to 00:00:00
-    hasTimerStarted = false; // Allow timer to be started again
-});
 
 updateTimerDisplay();

@@ -47,7 +47,6 @@ function addAction(actionType) {
     actionQueue.push(action);
     renderQueue();
 }
-
 function renderQueue() {
     const queueDisplay = document.getElementById('queue');
     queueDisplay.innerHTML = ''; // Clear existing items
@@ -72,10 +71,10 @@ function renderQueue() {
         queueItem.appendChild(dragHandle);
 
         const textContent = document.createElement('span');
-        textContent.textContent = `${index + 1} ${action.type.toUpperCase()}: ${Math.floor(action.duration / 1000)}s`;
+        textContent.textContent = `${Math.floor(action.duration / 1000)} SEC ${action.type.toUpperCase()}`;
         queueItem.appendChild(textContent);
 
-        const removeBtn = document.createElement('button');
+        const removeBtn = document.createElement('span');
         removeBtn.classList.add('material-icons', 'remove-action');
         removeBtn.innerHTML = 'delete';
         removeBtn.onclick = () => {
@@ -87,7 +86,6 @@ function renderQueue() {
         queueDisplay.appendChild(queueItem);
     });
 }
-
 function handleDragStart(e) {
     e.dataTransfer.setData('text/plain', e.target.id);
 }
@@ -160,6 +158,9 @@ startBtn.addEventListener('click', () => {
                             startBtn.textContent = 'START';
                             stopBtn.style.display = 'none';
                             timerPath.style.strokeDashoffset = 565; // Reset to full circle
+                            hasTimerStarted = false; // Allow timer to be started again
+                            currentActionIndex = 0; // Reset to the first item in the queue
+                            renderQueue(); // Refresh the queue display
                         }
                     }
                     renderQueue();
@@ -169,6 +170,7 @@ startBtn.addEventListener('click', () => {
         } else {
             isPaused = false;
             startBtn.textContent = 'PAUSE';
+            startBtn.classList.remove('paused'); // Remove the paused class when resumed
             timer = setInterval(() => {
                 totalMilliseconds += 10;
                 updateTimerDisplay();
@@ -192,6 +194,9 @@ startBtn.addEventListener('click', () => {
                             startBtn.textContent = 'START';
                             stopBtn.style.display = 'none';
                             timerPath.style.strokeDashoffset = 565; // Reset to full circle
+                            hasTimerStarted = false; // Allow timer to be started again
+                            currentActionIndex = 0; // Reset to the first item in the queue
+                            renderQueue(); // Refresh the queue display
                         }
                     }
                     renderQueue();
@@ -202,6 +207,7 @@ startBtn.addEventListener('click', () => {
         clearInterval(timer);
         timer = null;
         startBtn.textContent = 'RESUME';
+        startBtn.classList.add('paused'); // Add the paused class when paused
         isPaused = true;
     } 
 });
@@ -241,6 +247,7 @@ stopBtn.addEventListener('click', () => {
     updateTimerDisplay();
     timerPath.style.strokeDashoffset = 565; // Reset the visual timer to full circle
     timeDisplay.textContent = '00:00:00'; // Reset display to 00:00:00
+    hasTimerStarted = false; // Allow timer to be started again
 });
 
 updateTimerDisplay();

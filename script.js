@@ -55,7 +55,6 @@ function renderQueue() {
         const queueItem = document.createElement('div');
         queueItem.classList.add('queue-item');
         queueItem.id = action.type;
-        queueItem.textContent = `${index + 1}. ${action.type.toUpperCase()}: ${Math.floor(action.duration / 1000)}s`;
         queueItem.draggable = true;
         queueItem.addEventListener('dragstart', handleDragStart);
         queueItem.addEventListener('dragover', handleDragOver);
@@ -67,9 +66,18 @@ function renderQueue() {
             queueItem.classList.add('complete');
         }
 
+        const dragHandle = document.createElement('span');
+        dragHandle.classList.add('material-icons', 'drag-action');
+        dragHandle.textContent = 'drag_handle';
+        queueItem.appendChild(dragHandle);
+
+        const textContent = document.createElement('span');
+        textContent.textContent = `${index + 1} ${action.type.toUpperCase()}: ${Math.floor(action.duration / 1000)}s`;
+        queueItem.appendChild(textContent);
+
         const removeBtn = document.createElement('button');
-        removeBtn.textContent = '❌';
-        removeBtn.classList.add('remove-action');
+        removeBtn.classList.add('material-icons', 'remove-action');
+        removeBtn.innerHTML = 'delete';
         removeBtn.onclick = () => {
             actionQueue.splice(index, 1);
             renderQueue();
@@ -198,6 +206,23 @@ startBtn.addEventListener('click', () => {
     } 
 });
 
+function toggleRepeatQueue(event) {
+    const checkbox = document.getElementById('repeat-queue');
+    if (event.target !== checkbox) {
+        checkbox.checked = !checkbox.checked; // Toggle the state of the checkbox
+    }
+    const repeatQueueDiv = checkbox.closest('.repeat-queue-container');
+    if (checkbox.checked) {
+        repeatQueueDiv.classList.add('checked');
+    } else {
+        repeatQueueDiv.classList.remove('checked');
+    }
+}
+
+// Add event listeners
+document.querySelector('.repeat-queue-container').addEventListener('click', toggleRepeatQueue);
+document.querySelector('.repeat-queue-container label').addEventListener('click', toggleRepeatQueue);
+
 stopBtn.addEventListener('click', () => {
     if (timer) {
         clearInterval(timer);
@@ -217,4 +242,5 @@ stopBtn.addEventListener('click', () => {
     timerPath.style.strokeDashoffset = 565; // Reset the visual timer to full circle
     timeDisplay.textContent = '00:00:00'; // Reset display to 00:00:00
 });
+
 updateTimerDisplay();

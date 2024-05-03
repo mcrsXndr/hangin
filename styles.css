@@ -49,8 +49,16 @@ text {
   background-color: #1E9B1B;
 }
 
+#start-btn:hover {
+  background-color: #015500;
+}
+
 #stop-btn {
-  background-color: rgb(198, 77, 77);
+  background-color: #cc2e2e;
+}
+
+#stop-btn:hover {
+  background-color: #810d0d;
 }
 
 #sec-input {
@@ -60,8 +68,19 @@ text {
   padding: 8px;
   width:5rem;
   border-radius:4px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  text-align: center;
+}
+
+#sec-input::-webkit-inner-spin-button,
+#sec-input::-webkit-outer-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin:0;
+}
+
+#sec-input[type="number"] {
+  appearance: none;
+  -moz-appearance: textfield;
 }
 
 #sec-label {
@@ -72,17 +91,23 @@ text {
 .input-adjust {
   border: none;
   border-radius: 5px;
-  background-color: #b8b8b8;
+  background-color: #0369EF;
+  color:white;
   font-size: 20px;
   cursor: pointer;
   padding: 12px 25px;
   margin: 0 0 10px 0;
 }
 
+.input-adjust:hover {
+  background-color: #003479;
+}
+
 .add-action {
-  border: 1px solid #b3b3b3;
+  border: none;
   border-radius: 5px;
-  background-color: #f1f1f1;
+  background-color: #0369EF;
+  color:white;
   cursor: pointer;
   padding: 2.4rem 2rem;
   width: auto; 
@@ -94,7 +119,7 @@ text {
 }
 
 .add-action:hover {
-  background-color: #e8e8e8;
+  background-color: #003479;
 }
 
 #queue {
@@ -116,11 +141,20 @@ text {
 }
 
 .queue-item.active {
-  background-color: #7093e6; /* Highlight active item */
+  background-color: #cddcff; /* Highlight active item */
 }
 
 .queue-item.complete {
-  background-color: #a5eaa4; /* Highlight completed item */
+  background-color: #c0f1bf; /* Highlight completed item */
+}
+
+.remove-action{
+  color: #d36666;
+}
+
+.drag-action {
+  color: #4b4b4b;
+  cursor: pointer;
 }
 
 .remove-action {
@@ -130,3 +164,31 @@ text {
   cursor: pointer;
 }
 
+.repeat-queue-container {
+  margin: 10px 0 0 0;
+  background-color: #767676; /* Default background color when not checked */
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 5px;
+  padding: 10px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.repeat-queue-container.checked, .repeat-queue-container.checked * {
+  font-weight: 700;
+  color: white; /* Icon color when checked */
+  background-color: #1E9B1B; /* Background color when checked */
+}
+
+.repeat-queue-container label {
+  cursor: pointer;
+}
+
+#repeat-queue {
+  cursor: pointer;
+  user-select: none;
+  display: none;
+}

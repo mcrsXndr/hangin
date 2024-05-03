@@ -8,6 +8,7 @@
     <title>Hangboard Timer</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
@@ -24,17 +25,18 @@
     <label id="sec-label" for="sec-input">seconds</label>
     <div class="action-queue">
         <button class="input-adjust" id="decrease-sec">-</button>
-        <input id="sec-input" type="number" min="0" max="9999" value="5">
+        <input id="sec-input" type="number" inputmode="numeric" pattern="[0-9]*" value="5">
         <button class="input-adjust" id="increase-sec">+</button>
         <div id="action-buttons">
             <button id="add-hang" class="add-action">HANG</button>
             <button id="add-rest" class="add-action">REST</button>
         </div>
-        <div id="queue"></div>
-        <div class="repeat-queue">
+        <div class="repeat-queue-container">
             <input type="checkbox" id="repeat-queue">
+            <span class="material-icons" style="cursor: pointer;">repeat</span>
             <label for="repeat-queue">Repeat</label>
         </div>
+        <div id="queue"></div>
     </div>
     <script src="script.js" type="module"></script>
 </body>
